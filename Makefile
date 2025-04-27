@@ -1,8 +1,9 @@
-build:
-	go build -o bin/main cmd/main.go
+run: build
+	@./bin/task-cli $(ARGS)
+#make run ARGS="list done"
 
-run:
-	go run cmd/main.go
+build:
+	@go build -o bin/task-cli cmd/main.go
 
 test:
 	go test cmd

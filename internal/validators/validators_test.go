@@ -1,22 +1,27 @@
 package validators
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+
+	"github.com/capybartender/task-cli/internal/models"
+)
 
 func TestIsNumber(t *testing.T) {
 	t.Run("checking if \"123\" is a number", func(t *testing.T) {
 		got := isNumber("123")
 		want := true
-		assertCorrectValidity(t, got, want)
+		assertBoolean(t, got, want)
 	})
 	t.Run("checking if \"1 2 3\" is a number", func(t *testing.T) {
 		got := isNumber("1 2 3")
 		want := false
-		assertCorrectValidity(t, got, want)
+		assertBoolean(t, got, want)
 	})
 	t.Run("checking if \"abc\" is a number", func(t *testing.T) {
 		got := isNumber("abc")
 		want := false
-		assertCorrectValidity(t, got, want)
+		assertBoolean(t, got, want)
 	})
 }
 
@@ -24,101 +29,95 @@ func TestIsTaskState(t *testing.T) {
 	t.Run("checking if \"todo\" is a valid task state", func(t *testing.T) {
 		got := isTaskState("todo")
 		want := true
-		assertCorrectValidity(t, got, want)
+		assertBoolean(t, got, want)
 	})
 	t.Run("checking if \"in-progress\" is a valid task state", func(t *testing.T) {
 		got := isTaskState("in-progress")
 		want := true
-		assertCorrectValidity(t, got, want)
+		assertBoolean(t, got, want)
 	})
 	t.Run("checking if \"done\" is a valid task state", func(t *testing.T) {
 		got := isTaskState("done")
 		want := true
-		assertCorrectValidity(t, got, want)
+		assertBoolean(t, got, want)
 	})
 	t.Run("checking if \"invalid\" is a valid task state", func(t *testing.T) {
 		got := isTaskState("invalid")
 		want := false
-		assertCorrectValidity(t, got, want)
+		assertBoolean(t, got, want)
 	})
 }
 
 func TestValidateArgs(t *testing.T) {
-	/*
-	   # Adding a new task
-	   add "Buy groceries"
-
-	   # Updating and deleting tasks
-	   update 1 "Buy groceries and cook dinner"
-	   delete 1
-
-	   # Marking a task as in progress or done
-	   mark-in-progress 1
-	   mark-done 1
-
-	   # Listing all tasks
-	   list
-
-	   # Listing tasks by status
-	   list done
-	   list todo
-	   list in-progress
-	*/
 	t.Run("checking if 'add \"Buy groceries\"' is a valid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"add", "\"Buy groceries\""})
-		want := true
+		want := &models.Command{Command: "add", Args: []string{"\"Buy groceries\""}}
 		assertCorrectValidity(t, got, want)
 	})
 	t.Run("checking if 'update 1 \"Buy groceries and cook dinner\"' is a valid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"update", "1", "\"Buy groceries and cook dinner\""})
-		want := true
+		want := &models.Command{Command: "update", Args: []string{"1", "\"Buy groceries and cook dinner\""}}
 		assertCorrectValidity(t, got, want)
 	})
 	t.Run("checking if 'delete 1' is a valid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"delete", "1"})
-		want := true
+		want := &models.Command{Command: "delete", Args: []string{"1"}}
 		assertCorrectValidity(t, got, want)
 	})
 	t.Run("checking if 'mark-in-progress 1' is a valid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"mark-in-progress", "1"})
-		want := true
+		want := &models.Command{Command: "mark-in-progress", Args: []string{"1"}}
 		assertCorrectValidity(t, got, want)
 	})
 	t.Run("checking if 'mark-done 1' is a valid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"mark-done", "1"})
-		want := true
+		want := &models.Command{Command: "mark-done", Args: []string{"1"}}
 		assertCorrectValidity(t, got, want)
 	})
 	t.Run("checking if 'list' is a valid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"list"})
-		want := true
+		want := &models.Command{Command: "list", Args: []string{}}
 		assertCorrectValidity(t, got, want)
 	})
 	t.Run("checking if 'list done' is a valid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"list", "done"})
-		want := true
+		want := &models.Command{Command: "list", Args: []string{"done"}}
 		assertCorrectValidity(t, got, want)
 	})
 	t.Run("checking if 'list todo' is a valid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"list", "todo"})
-		want := true
+		want := &models.Command{Command: "list", Args: []string{"todo"}}
 		assertCorrectValidity(t, got, want)
 	})
 	t.Run("checking if 'list in-progress' is a valid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"list", "in-progress"})
-		want := true
+		want := &models.Command{Command: "list", Args: []string{"in-progress"}}
 		assertCorrectValidity(t, got, want)
 	})
 	t.Run("checking if 'list invalid' is an invalid command", func(t *testing.T) {
 		got, _ := ValidateArgs([]string{"list", "invalid"})
-		want := false
+		var want *models.Command = nil
 		assertCorrectValidity(t, got, want)
 	})
 }
 
-func assertCorrectValidity(t testing.TB, got, want bool) {
+func assertBoolean(t testing.TB, got, want bool) {
 	t.Helper()
 	if got != want {
 		t.Errorf("got %t want %t", got, want)
+	}
+}
+
+func assertCorrectValidity(t testing.TB, got, want *models.Command) {
+	t.Helper()
+	if got == nil && want == nil {
+		return		
+	}
+	if (got == nil && want != nil) || (got != nil && want == nil) {
+		t.Errorf("got %v want %v", got, want)
+		return
+	}
+	if got.Command != want.Command || !reflect.DeepEqual(got.Args, want.Args) {
+		t.Errorf("got %v want %v", got, want)
 	}
 }

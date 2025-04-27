@@ -42,3 +42,12 @@ type Task struct {
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
 }
+
+type Command struct {
+	Command string   `json:"command"`
+	Args    []string `json:"args"`
+}
+
+type Output struct {
+	Value []string `json:"value"`
+}
