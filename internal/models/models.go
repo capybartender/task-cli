@@ -1,9 +1,5 @@
 package models
 
-import (
-	"time"
-)
-
 type TaskStatus int
 
 const (
@@ -33,14 +29,6 @@ func IsValidState(value string) bool {
 		return true
 	}
 	return false
-}
-
-type Task struct {
-	Id          int        `json:"id"`
-	Description string     `json:"description"`
-	Status      TaskStatus `json:"status"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
 type Command struct {

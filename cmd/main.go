@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/capybartender/task-cli/internal/models"
+	"github.com/capybartender/task-cli/internal/taskprocessor"
 	"github.com/capybartender/task-cli/internal/validators"
 )
 
@@ -25,35 +26,25 @@ func main() {
 		return
 	}
 
+	taskprocessor := taskprocessor.TaskProcessor{}
+
 	var output *models.Output
-	output, err = execute(command)
+	output, err = taskprocessor.Execute(command)
 
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(strings.Join(output.Value[:], "\n"))
-}
-
-func execute(c *models.Command) (*models.Output, error) {
-	switch c.Command {
-	case "list":
-		return listTasks(c.Args)
-	case "add":
-		return addTask(c.Args)
-	case "update":
-		return updateTask(c.Args)
-	case "delete":
-		return deleteTask(c.Args)
-	case "mark-in-progress":
-		return markTaskInProgress(c.Args)
-	case "mark-done":
-		return markTaskDone(c.Args)
-	default:
-		return nil, fmt.Errorf("Unknown command: %s", c.Command)
+	if output != nil && output.Value != nil && len(output.Value) > 0 {
+		fmt.Println("Tasks:")
+		for _, task := range output.Value {
+			fmt.Println(task)
+		}
+	} else {
+		fmt.Println("No tasks found.")
+		return		
 	}
-	//return &models.Output{Value: []string{"- Task executed successfully"}}, nil
 }
 
 /*
