@@ -2,27 +2,21 @@ package taskprocessor
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/capybartender/task-cli/internal/models"
+	"github.com/capybartender/task-cli/internal/storage"
 )
 
-type TaskProcessor struct {
-	file string
-}
+type TaskProcessor struct{}
 
-const defaultFileName = "tasks.json"
+var taskStorage = storage.Init("")
 
 func (t *TaskProcessor) Execute(c *models.Command) (*models.Output, error) {
 	if c == nil {
-		return nil, fmt.Errorf("Command is nil")		
+		return nil, fmt.Errorf("command is nil")
 	}
 
-	if strings.TrimSpace(t.file) == "" {
-		t.file = defaultFileName		
-	}
-
-	tasks, err := load(t.file)	
+	tasks, err := taskStorage.Load()
 	if err != nil {
 		return nil, err
 	}
@@ -33,45 +27,32 @@ func (t *TaskProcessor) Execute(c *models.Command) (*models.Output, error) {
 	case "list":
 		err := tasks.List(c.Args)
 		if err == nil {
-			output = &models.Output{ Value: tasks.GetTaskStrings()}			
+			output = &models.Output{Value: tasks.GetTaskStrings()}
 		}
 		return output, err
 	case "add":
 		err = tasks.Add(c.Args)
-		break
 	case "update":
 		err = tasks.Update(c.Args)
-		break
 	case "delete":
 		err = tasks.Delete(c.Args)
-		break
 	case "mark-in-progress":
 		err = tasks.MarkInProgress(c.Args)
-		break
 	case "mark-done":
 		err = tasks.MarkDone(c.Args)
-		break
 	default:
-		return nil, fmt.Errorf("Unknown command: %s", c.Command)
+		return nil, fmt.Errorf("unknown command: %s", c.Command)
 	}
-	
+
 	if err != nil {
 		return nil, err
 	}
 
-	err = save(t.file, tasks) // Save the tasks after executing the command
-	
+	err = taskStorage.Save(tasks) // Save the tasks after executing the command
+
 	if err != nil {
 		return nil, err
 	}
-}
 
-func load(file string) (*models.TaskList, error) {
-	// Implement the logic to load tasks from the file
-	return nil, nil
-}
-
-func save(file string, tasks *models.TaskList) error {
-	// Implement the logic to save tasks to the file
-	return nil
+	return &models.Output{}, nil
 }
