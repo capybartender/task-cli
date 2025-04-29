@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/capybartender/task-cli/internal/models"
 	"github.com/capybartender/task-cli/internal/taskprocessor"

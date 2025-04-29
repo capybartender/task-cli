@@ -2,7 +2,7 @@ package storage
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/capybartender/task-cli/internal/models"
@@ -24,7 +24,7 @@ func Init(filePath string) *Storage {
 func validateFilePath(filePath string) (shouldCreate bool, err error) {
 	fileInfo, err := os.Stat(filePath)
 	if os.IsNotExist(err) || fileInfo.IsDir() {
-		return true, nil		
+		return true, nil
 	}
 
 	return false, err
@@ -34,9 +34,9 @@ func (s *Storage) Load() (*models.TaskList, error) {
 	shouldCreate, err := validateFilePath(s.filePath)
 
 	if shouldCreate {
-		return &models.TaskList{}, nil		
+		return &models.TaskList{}, nil
 	}
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (s *Storage) Load() (*models.TaskList, error) {
 	defer jsonFile.Close()
 
 	var tasks models.TaskList
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	byteValue, _ := io.ReadAll(jsonFile)
 	err = json.Unmarshal(byteValue, &tasks)
 	if err != nil {
 		return nil, err
@@ -66,10 +66,21 @@ func (s *Storage) Load() (*models.TaskList, error) {
 }
 
 func (s *Storage) Save(tasks *models.TaskList) error {
-	shouldCreate, err := validateFilePath(s.filePath)
-	if shouldCreate {
-		return &models.TaskList{}, nil		
+	file, err := os.OpenFile(s.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	jsonData, err := json.MarshalIndent(tasks, "", "  ")
+	if err != nil {
+		return err
 	}
 	
+	_, err = file.Write(jsonData)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
