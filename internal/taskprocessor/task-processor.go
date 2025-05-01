@@ -30,7 +30,8 @@ func (t *TaskProcessor) Execute(c *models.Command) (*models.Output, error) {
 		if len(c.Args) == 0 {
 			taskList = tasks.ListAll()
 		} else {
-			status, err := models.ToTaskStatus(c.Args[0])
+			var status models.TaskStatus
+			status, err = models.ToTaskStatus(c.Args[0])
 			if err != nil {
 				return nil, err
 			}
@@ -39,23 +40,38 @@ func (t *TaskProcessor) Execute(c *models.Command) (*models.Output, error) {
 		output = &models.Output{Value: taskList}
 		return output, nil
 	case "add":
-		err = tasks.Add(c.Args[0])
+		var result string
+		result, err = tasks.Add(c.Args[0])
+		if err != nil {
+			return nil, err
+		}
+		output = &models.Output{Value: []string{result}}
 	case "update":
-		if id, err := strconv.Atoi(c.Args[0]); err == nil {
-			err = tasks.Update(id, c.Args[1])
-		}
+		// var id int
+		// if id, err = strconv.Atoi(c.Args[0]); err == nil {
+		// 	err = tasks.Update(id, c.Args[1])
+		// }
+
+		err = parseArgAsIdAndExecuteFunction(c.Args[0], partialUpdate(tasks, c.Args[1]))
 	case "delete":
-		if id, err := strconv.Atoi(c.Args[0]); err == nil {
-			err = tasks.Delete(id)
-		}
+		// var id int
+		// if id, err = strconv.Atoi(c.Args[0]); err == nil {
+		// 	err = tasks.Delete(id)
+		// }
+		err = parseArgAsIdAndExecuteFunction(c.Args[0], tasks.Delete)
 	case "mark-in-progress":
-		if id, err := strconv.Atoi(c.Args[0]); err == nil {
-			err = tasks.MarkInProgress(id)
-		}
+		// var id int
+		// if id, err = strconv.Atoi(c.Args[0]); err == nil {
+		// 	err = tasks.MarkInProgress(id)
+		// }
+		err = parseArgAsIdAndExecuteFunction(c.Args[0], tasks.MarkInProgress)
 	case "mark-done":
-		if id, err := strconv.Atoi(c.Args[0]); err == nil {
-			err = tasks.MarkDone(id)
-		}
+		// var id int
+		// if id, err = strconv.Atoi(c.Args[0]); err == nil {
+		// 	err = tasks.MarkDone(id)
+		// }
+
+		err = parseArgAsIdAndExecuteFunction(c.Args[0], tasks.MarkDone)
 	default:
 		return nil, fmt.Errorf("unknown command: %s", c.Command)
 	}
@@ -70,5 +86,18 @@ func (t *TaskProcessor) Execute(c *models.Command) (*models.Output, error) {
 		return nil, err
 	}
 
-	return &models.Output{}, nil
+	return output, nil
+}
+
+func partialUpdate(t *models.TaskList, text string) func(int) error {
+	return func(id int) error {
+		return t.Update(id, text)
+	}
+}
+
+func parseArgAsIdAndExecuteFunction(idString string, f func(int) error) error {
+	if id, err := strconv.Atoi(idString); err == nil {
+		return f(id)
+	}
+	return nil
 }

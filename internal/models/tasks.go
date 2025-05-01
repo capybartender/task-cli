@@ -68,14 +68,14 @@ func (t *TaskList) Update(id int, newDescription string) error {
 	return nil
 }
 
-func (t *TaskList) Add(newTask string) error {
+func (t *TaskList) Add(newTask string) (string, error) {
 	*t = append(*t, Task{
 		Description: newTask,
 		Status:      ToDo,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	})
-	return nil
+	return fmt.Sprintf("Task added successfully (ID: %d)", len(*t)), nil
 }
 
 func (t *TaskList) ListByStatus(status TaskStatus) []string {

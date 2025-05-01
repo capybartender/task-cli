@@ -66,7 +66,7 @@ func (s *Storage) Load() (*models.TaskList, error) {
 }
 
 func (s *Storage) Save(tasks *models.TaskList) error {
-	file, err := os.OpenFile(s.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(s.filePath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
