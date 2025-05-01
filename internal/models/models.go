@@ -1,5 +1,7 @@
 package models
 
+import "fmt"
+
 type TaskStatus int
 
 const (
@@ -29,6 +31,13 @@ func IsValidState(value string) bool {
 		return true
 	}
 	return false
+}
+
+func ToTaskStatus(s string) (TaskStatus, error) {
+	if status, ok := statusValue[s]; ok {
+		return status, nil
+	}
+	return -1, fmt.Errorf("invalid task status: %s", s)
 }
 
 type Command struct {

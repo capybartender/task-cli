@@ -2,6 +2,7 @@ package taskprocessor
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/capybartender/task-cli/internal/models"
 	"github.com/capybartender/task-cli/internal/storage"
@@ -25,21 +26,36 @@ func (t *TaskProcessor) Execute(c *models.Command) (*models.Output, error) {
 
 	switch c.Command {
 	case "list":
-		err := tasks.List(c.Args)
-		if err == nil {
-			output = &models.Output{Value: tasks.GetTaskStrings()}
+		var taskList []string
+		if len(c.Args) == 0 {
+			taskList = tasks.ListAll()
+		} else {
+			status, err := models.ToTaskStatus(c.Args[0])
+			if err != nil {
+				return nil, err
+			}
+			taskList = tasks.ListByStatus(status)
 		}
-		return output, err
+		output = &models.Output{Value: taskList}
+		return output, nil
 	case "add":
-		err = tasks.Add(c.Args)
+		err = tasks.Add(c.Args[0])
 	case "update":
-		err = tasks.Update(c.Args)
+		if id, err := strconv.Atoi(c.Args[0]); err == nil {
+			err = tasks.Update(id, c.Args[1])
+		}
 	case "delete":
-		err = tasks.Delete(c.Args)
+		if id, err := strconv.Atoi(c.Args[0]); err == nil {
+			err = tasks.Delete(id)
+		}
 	case "mark-in-progress":
-		err = tasks.MarkInProgress(c.Args)
+		if id, err := strconv.Atoi(c.Args[0]); err == nil {
+			err = tasks.MarkInProgress(id)
+		}
 	case "mark-done":
-		err = tasks.MarkDone(c.Args)
+		if id, err := strconv.Atoi(c.Args[0]); err == nil {
+			err = tasks.MarkDone(id)
+		}
 	default:
 		return nil, fmt.Errorf("unknown command: %s", c.Command)
 	}

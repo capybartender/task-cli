@@ -76,7 +76,7 @@ func (s *Storage) Save(tasks *models.TaskList) error {
 	if err != nil {
 		return err
 	}
-	
+
 	_, err = file.Write(jsonData)
 	if err != nil {
 		return err
