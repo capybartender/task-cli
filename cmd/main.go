@@ -40,9 +40,6 @@ func main() {
 		for _, task := range output.Value {
 			fmt.Println(task)
 		}
-	} else {
-		fmt.Println("No tasks found.")
-		return		
 	}
 }
 

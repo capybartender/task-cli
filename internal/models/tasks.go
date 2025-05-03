@@ -16,7 +16,7 @@ type Task struct {
 type TaskList []Task
 
 func (t *TaskList) MarkDone(id int) error {
-	return changeStatus(t, id, Done)
+	return changeStatus(t, id-1, Done)
 }
 
 func validateIndex(t *TaskList, index int) error {
@@ -97,5 +97,5 @@ func (t *TaskList) ListAll() []string {
 }
 
 func toString(id int, task *Task) string {
-	return fmt.Sprintf("%02d: %s", id, *&task.Description)
+	return fmt.Sprintf("%02d: %s, %s", id, task.Description, task.Status)
 }
