@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/capybartender/task-cli/internal/models"
-	"github.com/capybartender/task-cli/internal/taskprocessor"
+	"github.com/capybartender/task-cli/internal/task_processor"
 	"github.com/capybartender/task-cli/internal/validators"
 )
 
