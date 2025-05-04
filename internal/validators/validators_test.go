@@ -5,23 +5,24 @@ import (
 	"testing"
 
 	"github.com/capybartender/task-cli/internal/models"
+	"github.com/capybartender/task-cli/internal/test_helpers"
 )
 
 func TestIsNumber(t *testing.T) {
 	t.Run("checking if \"123\" is a number", func(t *testing.T) {
 		got := isNumber("123")
 		want := true
-		assertBoolean(t, got, want)
+		testhelpers.Assert(t, got, want)
 	})
 	t.Run("checking if \"1 2 3\" is a number", func(t *testing.T) {
 		got := isNumber("1 2 3")
 		want := false
-		assertBoolean(t, got, want)
+		testhelpers.Assert(t, got, want)
 	})
 	t.Run("checking if \"abc\" is a number", func(t *testing.T) {
 		got := isNumber("abc")
 		want := false
-		assertBoolean(t, got, want)
+		testhelpers.Assert(t, got, want)
 	})
 }
 
@@ -29,22 +30,22 @@ func TestIsTaskState(t *testing.T) {
 	t.Run("checking if \"todo\" is a valid task state", func(t *testing.T) {
 		got := isTaskState("todo")
 		want := true
-		assertBoolean(t, got, want)
+		testhelpers.Assert(t, got, want)
 	})
 	t.Run("checking if \"in-progress\" is a valid task state", func(t *testing.T) {
 		got := isTaskState("in-progress")
 		want := true
-		assertBoolean(t, got, want)
+		testhelpers.Assert(t, got, want)
 	})
 	t.Run("checking if \"done\" is a valid task state", func(t *testing.T) {
 		got := isTaskState("done")
 		want := true
-		assertBoolean(t, got, want)
+		testhelpers.Assert(t, got, want)
 	})
 	t.Run("checking if \"invalid\" is a valid task state", func(t *testing.T) {
 		got := isTaskState("invalid")
 		want := false
-		assertBoolean(t, got, want)
+		testhelpers.Assert(t, got, want)
 	})
 }
 
@@ -99,13 +100,6 @@ func TestValidateArgs(t *testing.T) {
 		var want *models.Command = nil
 		assertCorrectValidity(t, got, want)
 	})
-}
-
-func assertBoolean(t testing.TB, got, want bool) {
-	t.Helper()
-	if got != want {
-		t.Errorf("got %t want %t", got, want)
-	}
 }
 
 func assertCorrectValidity(t testing.TB, got, want *models.Command) {

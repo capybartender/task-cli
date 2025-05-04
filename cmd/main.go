@@ -11,10 +11,6 @@ import (
 
 // requirements https://roadmap.sh/projects/task-tracker
 
-func hello() string {
-	return "Hello there!"
-}
-
 func main() {
 	args := os.Args[1:]
 

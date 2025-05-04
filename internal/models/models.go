@@ -2,6 +2,15 @@ package models
 
 import "fmt"
 
+type Command struct {
+	Command string
+	Args    []string
+}
+
+type Output struct {
+	Value []string
+}
+
 type TaskStatus int
 
 const (
@@ -38,13 +47,4 @@ func ToTaskStatus(s string) (TaskStatus, error) {
 		return status, nil
 	}
 	return -1, fmt.Errorf("invalid task status: %s", s)
-}
-
-type Command struct {
-	Command string   `json:"command"`
-	Args    []string `json:"args"`
-}
-
-type Output struct {
-	Value []string `json:"value"`
 }
