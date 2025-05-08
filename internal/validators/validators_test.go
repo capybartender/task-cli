@@ -5,8 +5,22 @@ import (
 	"testing"
 
 	"github.com/capybartender/task-cli/internal/models"
-	"github.com/capybartender/task-cli/internal/test_helpers"
+	testhelpers "github.com/capybartender/task-cli/internal/test_helpers"
 )
+
+func assertCorrectValidity(t testing.TB, got, want *models.Command) {
+	t.Helper()
+	if got == nil && want == nil {
+		return
+	}
+	if (got == nil && want != nil) || (got != nil && want == nil) {
+		t.Errorf("got %v want %v", got, want)
+		return
+	}
+	if got.Command != want.Command || !reflect.DeepEqual(got.Args, want.Args) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
 
 func TestIsNumber(t *testing.T) {
 	t.Run("checking if \"123\" is a number", func(t *testing.T) {
@@ -100,18 +114,101 @@ func TestValidateArgs(t *testing.T) {
 		var want *models.Command = nil
 		assertCorrectValidity(t, got, want)
 	})
+	t.Run("checking if '' is an invalid command", func(t *testing.T) {
+		got, _ := ValidateArgs([]string{})
+		var want *models.Command = nil
+		assertCorrectValidity(t, got, want)
+	})
+	t.Run("checking if 'unknown' is an invalid command", func(t *testing.T) {
+		got, _ := ValidateArgs([]string{"unknown"})
+		var want *models.Command = nil
+		assertCorrectValidity(t, got, want)
+	})
+	t.Run("checking if 'add' with empty args is an invalid command", func(t *testing.T) {
+		got, _ := ValidateArgs([]string{"add"})
+		var want *models.Command = nil
+		assertCorrectValidity(t, got, want)
+	})
+	t.Run("checking if 'add' with too many args is an invalid command", func(t *testing.T) {
+		got, _ := ValidateArgs([]string{"add", "extra", "args", "here"})
+		var want *models.Command = nil
+		assertCorrectValidity(t, got, want)
+	})
 }
 
-func assertCorrectValidity(t testing.TB, got, want *models.Command) {
-	t.Helper()
-	if got == nil && want == nil {
-		return		
-	}
-	if (got == nil && want != nil) || (got != nil && want == nil) {
-		t.Errorf("got %v want %v", got, want)
-		return
-	}
-	if got.Command != want.Command || !reflect.DeepEqual(got.Args, want.Args) {
-		t.Errorf("got %v want %v", got, want)
-	}
-}
+// func TestValidateArgsErrors(t *testing.T) {
+// 	t.Run("checking if 'add' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"add"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// 	t.Run("checking if 'update' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"update"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// 	t.Run("checking if 'delete' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"delete"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// 	t.Run("checking if 'mark-in-progress' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"mark-in-progress"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// 	t.Run("checking if 'mark-done' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"mark-done"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// }
+
+// func TestValidateArgsErrorsWithInvalidState(t *testing.T) {
+// 	t.Run("checking if 'list invalid' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"list", "invalid"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// 	t.Run("checking if 'update 1' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"update", "1"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// }
+
+// func TestValidateArgsErrorsWithInvalidId(t *testing.T) {
+// 	t.Run("checking if 'update abc \"Buy groceries and cook dinner\"' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"update", "abc", "\"Buy groceries and cook dinner\""})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// 	t.Run("checking if 'delete abc' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"delete", "abc"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// 	t.Run("checking if 'mark-in-progress abc' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"mark-in-progress", "abc"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// 	t.Run("checking if 'mark-done abc' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{"mark-done", "abc"})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// }
+
+// func TestValidateArgsErrorsWithEmptyCommand(t *testing.T) {
+// 	t.Run("checking if '' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// 	t.Run("checking if ' ' is an invalid command", func(t *testing.T) {
+// 		got, _ := ValidateArgs([]string{" "})
+// 		var want *models.Command = nil
+// 		assertCorrectValidity(t, got, want)
+// 	})
+// }

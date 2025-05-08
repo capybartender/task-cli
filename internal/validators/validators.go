@@ -26,8 +26,6 @@ func ValidateArgs(args []string) (*models.Command, error) {
 	}
 
 	switch argsLength {
-	case 0:
-		return nil, errors.New("This command requires at least one argument.")
 	case 1:
 		if !slices.Contains(oneArgsCommands, command) {
 			return nil, errors.New("Arguments missing.")
